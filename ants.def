@@ -1,0 +1,59 @@
+Bootstrap: docker
+From: debian
+
+
+%post
+    export DEBIAN_FRONTEND=noninteractive 
+
+    apt-get update -qq && \
+    apt-get install -y -q --no-install-recommends apt-utils sudo wget curl ca-certificates locales git build-essential cmake zlib1g-dev
+
+    sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen
+    dpkg-reconfigure --frontend=noninteractive locales
+    update-locale LANG="en_US.UTF-8"
+
+    chmod 777 /opt && chmod a+s /opt
+
+    # Now actually configure ants
+    DIR=/opt/ants-build
+    INSTALL_DIR=/opt/ants
+    mkdir -p $DIR
+    cd $DIR
+    git clone https://github.com/ANTsX/ANTs.git
+    mkdir build install
+    cd build
+    cmake \
+        -DCMAKE_INSTALL_PREFIX=$INSTALL_DIR \
+            ../ANTs 2>&1 | tee cmake.log
+    # The threads make this fail for some reason
+    # make -j 4 2>&1 | tee build.log
+    make -j 4 2>&1 | tee build.log
+    cd ANTS-build
+    make install 2>&1 | tee install.log
+
+    # Cleanup
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* \
+
+    cd ~
+    rm -rf $DIR
+
+%environment
+    # NOTE: Variables in this section don't get included in %post
+    #       during the build, only when running in final mode
+    export ANTSPATH="/opt/ants/bin"
+    export PATH="$ANTSPATH:$PATH"
+
+
+%runscript
+    echo "Container was created $NOW"
+    echo "Arguments received: $*"
+    exec echo "$@"
+
+%labels
+    Version v0.0.1
+
+%help
+    This is an ANTS pipeline container in process
+
+
