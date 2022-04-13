@@ -1,0 +1,12 @@
+Universe=vanilla
+getenv=True
+Executable=run_ants_singularity.sh
+Log=log/ants_$(Arguments)_$(Process).log
+Output=log/ants_$(Arguments)_$(Process).out
+Error=log/ants_$(Arguments)_$(Process).err
+Notification=Complete
+Notify_user=XXXXXX
+Arguments=1
+Queue
+Arguments=2
+Queue
