@@ -27,7 +27,8 @@ From: debian
             ../ANTs 2>&1 | tee cmake.log
     # The threads make this fail for some reason
     # make -j 4 2>&1 | tee build.log
-    make -j 4 2>&1 | tee build.log
+    # Without threads this build takes FOREVERRRRR
+    make 2>&1 | tee build.log
     cd ANTS-build
     make install 2>&1 | tee install.log
 
